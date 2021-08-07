@@ -1,0 +1,274 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"globa",
+				"global"
+			],
+			[
+				"wi",
+				"withdraw"
+			],
+			[
+				"con",
+				"continue"
+			],
+			[
+				"text",
+				"text-align"
+			],
+			[
+				"rs",
+				"result"
+			],
+			[
+				"for",
+				"foreach\tforeach …"
+			],
+			[
+				"E",
+				"eth"
+			],
+			[
+				"contra",
+				"contract"
+			],
+			[
+				"roun",
+				"roundMask"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"Install",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: eth",
+				"Package Control: Add Channel"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/julien/Documents/Code/equity"
+	],
+	"file_history":
+	[
+		"/Users/julien/Desktop/med",
+		"/Users/julien/Downloads/portfolio.php",
+		"/Users/julien/Downloads/web3.html",
+		"/Users/julien/Downloads/erd1ufjtjp49pw63hu4garf6r7ahxdqfwhwadenxja3ppy3gftp36whqc09yd2.json",
+		"/Users/julien/Library/Application Support/AEZORA/masternode.conf",
+		"/Users/julien/Library/Application Support/SAP/masternode.conf",
+		"/Users/julien/Library/Application Support/IQcashCore/masternode.conf",
+		"/Users/julien/Library/Application Support/Soverain/masternode.conf",
+		"/Users/julien/Library/Application Support/Soverain/soverain.conf",
+		"/Users/julien/Library/Application Support/SAP/sap.conf",
+		"/Users/julien/Library/Application Support/AEZORA/aezora.conf",
+		"/Users/julien/Desktop/VPS_web/masternodes-bot/tools.php",
+		"/Users/julien/Desktop/VPS_web/masternodes-bot/scripts/alerts.php",
+		"/Users/julien/Desktop/VPS_web/masternodes-bot/scripts/trading/crexActions.php",
+		"/Users/julien/Desktop/VPS_web/masternodes-bot/scripts/trading/crex24Api.php",
+		"/Users/julien/Desktop/VPS_web/masternodes-bot/config.php",
+		"/Users/julien/Desktop/import.php",
+		"/Users/julien/Desktop/VPS_web/trading/crex24Api.php",
+		"/Users/julien/Desktop/VPS_web/html/config.php",
+		"/Users/julien/Desktop/VPS_web/html/index.php",
+		"/Users/julien/Desktop/VPS_web/index.php",
+		"/Users/julien/Desktop/VPS_web/trading/crexActions.php",
+		"/Users/julien/Desktop/VPS_web/html/crypto_prices.php",
+		"/Users/julien/Desktop/VPS_web/html/crex24Api.php",
+		"/Users/julien/Desktop/VPS_web/trading/checkBalances.php",
+		"/Users/julien/Desktop/VPS_web/scripts/import.php",
+		"/Users/julien/Desktop/VPS_web/scripts/crypto_prices.php",
+		"/Users/julien/Desktop/VPS_web/import.php",
+		"/Users/julien/Library/Application Support/ArionCore/masternode.conf",
+		"/Users/julien/Library/Application Support/ZCR/masternode.conf",
+		"/Users/julien/Desktop/client",
+		"/Users/julien/Downloads/scap_mn_installer.sh",
+		"/Applications/Soverain-Qt.app/Contents/Resources/qt.conf",
+		"/Users/julien/Downloads/sectionTest",
+		"/Users/julien/Downloads/test",
+		"/Users/julien/Documents/Code/AR_World/Assets/GONet/StreamingAssets/GONet/Start_CLIENT.bat",
+		"/Users/julien/Documents/Code/AR_World/Assets/GONet/StreamingAssets/GONet/Start_SERVER.bat",
+		"/Users/julien/Documents/Code/roundid-coin/contracts/Migrations.sol",
+		"/Users/julien/Documents/Code/roundid-coin/migrations/3_deploy_contracts.js",
+		"/Users/julien/Documents/Code/roundid-coin/src/Roundee.json",
+		"/Users/julien/Documents/Code/roundid-coin/src/js/app.js",
+		"/Users/julien/Documents/Code/roundid-coin/src/index.html",
+		"/Users/julien/Documents/Code/roundid-coin/contracts/ConvertLib.sol",
+		"/Users/julien/Documents/Code/roundid-coin/test/roundidPayment.test.js",
+		"/Users/julien/Documents/Code/roundid-coin/contracts/RoundidPayment.sol",
+		"/Users/julien/Documents/Code/roundid-coin/truffle.js",
+		"/Users/julien/Documents/Code/roundid-coin/migrations/2_deploy_coin.js",
+		"/Users/julien/Documents/Code/roundid-coin/migrations/1_initial_migration.js",
+		"/Users/julien/Documents/Code/roundid-coin/migrations/2_deploy_contracts.js",
+		"/Users/julien/Documents/Code/roundid-coin/contracts/RoundidCoin.sol",
+		"/Users/julien/Documents/Code/roundid-coin/test/simpleBank.test.js",
+		"/Users/julien/Documents/Code/roundid-coin/contracts/Payment.sol",
+		"/Users/julien/Documents/Code/roundid-coin/contracts/Transaction.sol",
+		"/Users/julien/Library/Preferences/com.unity3d.UnityEditor5.x.plist",
+		"/Users/julien/Desktop/Roll-dice-in-unity-master 2/Assets/Scipts/DiceSwipeControl.cs",
+		"/Users/julien/Documents/Code/catan/Catan/Assets/Code/GameCommon/Libraries/Draggable.cs",
+		"/Users/julien/Documents/Code/catan/Catan/Assets/DropZonePlayer.cs",
+		"/Users/julien/Documents/Code/catan/boardgame/Assets/DropZonePlayer.cs",
+		"/Users/julien/Documents/Code/catan/boardgame/Assets/Scripts/DropMe.cs",
+		"/Users/julien/Documents/Code/catan/boardgame/Assets/Scripts/DragMe.cs"
+	],
+	"find":
+	{
+		"height": 24.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"scrollbar_highlights": true,
+		"show_context": true,
+		"use_buffer2": true,
+		"use_gitignore": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 24.0
+	},
+	"input":
+	{
+		"height": 36.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "equity.sublime-project",
+	"replace":
+	{
+		"height": 44.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 327.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
