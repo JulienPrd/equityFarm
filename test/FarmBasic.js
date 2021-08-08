@@ -50,9 +50,9 @@ contract('FarmBasic', (accounts) => {
     assert.equal(balanceStart.valueOf(), 0, "FarmBasic should have 0 MetaCoin");
 
     // approve tokens
-    await inputTokenInstance.approve(FarmBasic.address, amountWei, { from: account });
+    await inputTokenInstance.increaseAllowance(FarmBasic.address, amountWei, { from: account });
 
-    // deposit tokens
+    // deposit tokens (TODO: not to be mandatory)
     await farmInstance.depositFarmTokens(amountWei, { from: account });
 
     // check MetaCoin balance
@@ -85,5 +85,10 @@ contract('FarmBasic', (accounts) => {
     // check equityMetaCoin balance
     const endEquityMetaCoinBalance = parseInt(web3.utils.fromWei(String(await farmInstance.balanceOf.call(account)), 'ether'));
     assert.equal(endEquityMetaCoinBalance, 0, "Account should now have 0 equityMetaCoin");
+  });
+
+  it('test Farm', async () => {
+    const farmInstance = await FarmBasic.deployed();
+    await farmInstance.farm();
   });
 });

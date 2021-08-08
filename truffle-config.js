@@ -1,6 +1,6 @@
 const HDWalletProvider = require('truffle-hdwallet-provider');
 const fs = require('fs');
-const mnemonic = fs.readFileSync(".secret").toString().trim();
+const mnemonic = fs.readFileSync(".walletSecret").toString().trim();
 
 // address: 0x3EA10391D762960Cb2D79aa66875a3970440ea9E
 

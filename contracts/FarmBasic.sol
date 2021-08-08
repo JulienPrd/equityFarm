@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./libs/IPancakeswapFarm.sol";
 
 contract FarmBasic is ERC20, Ownable {
 
-    ERC20 private farmToken; // can be CAKE or liquidity such as BUSD-USDT
+    IERC20 private farmToken; // can be CAKE or liquidity such as BUSD-USDT
 
     uint256  private _farmPid;
     bool private isActive;
     address private _farmContractAddress;
-
-    mapping (address => uint256) public tokenInputBalances;
 
     modifier onlyActive() {
         assert(isActive == true);
@@ -51,8 +51,8 @@ contract FarmBasic is ERC20, Ownable {
     }
 
     function farm() public {
-        uint256 wantAmt = farmToken.balanceOf(address(this));
-        farmToken.increaseAllowance(_farmContractAddress, wantAmt);
+        uint256 wantAmt = IERC20(farmToken).balanceOf(address(this));
+        IERC20(farmToken).approve(_farmContractAddress, wantAmt);
 
         IPancakeswapFarm(_farmContractAddress).deposit(_farmPid, wantAmt);
     }
