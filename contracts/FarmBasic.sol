@@ -7,13 +7,15 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./libs/IPancakeswapFarm.sol";
+import "./libs/IPancakeRouter02.sol";
+import "./libs/IPancakeRouter01.sol";
 
 contract FarmBasic is ERC20, Ownable {
 
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    address private farmTokenAddress; // can be a single asset or a liquidity such as BUSD-USDT
+    address private wantTokenAddress; // can be a single asset or a liquidity such as BUSD-USDT
 
     uint256  private farmPid;
     bool private isActive;
@@ -62,20 +64,26 @@ contract FarmBasic is ERC20, Ownable {
     }
 
     constructor(
-        address _farmTokenAddress, 
+        address _token0Address,
+        address _token1Address,
+        address _uniRouterAddress,
+        address _wantTokenAddress, 
         address _farmContractAddress, // address of farm, eg, PCS, Thugs etc.
         uint256 _farmPid, // pid of pool in farmContractAddress
         string memory name, 
         string memory symbol
     ) ERC20(name, symbol) Ownable() {
+        token0Address = _token0Address;
+        token1Address = _token1Address;
+        uniRouterAddress = _uniRouterAddress;
         isActive = false;
         farmPid = _farmPid;
         farmContractAddress = _farmContractAddress;
-        farmTokenAddress = _farmTokenAddress;
+        wantTokenAddress = _wantTokenAddress;
     }
 
     function depositFarmTokens(uint amount) public onlyActive {
-        IERC20(farmTokenAddress).transferFrom(msg.sender, address(this), amount);
+        IERC20(wantTokenAddress).transferFrom(msg.sender, address(this), amount);
 
         _mint(msg.sender, amount);
     }
@@ -84,14 +92,14 @@ contract FarmBasic is ERC20, Ownable {
         uint256 amount = balanceOf(msg.sender);
         require(amount > 0, "nothing to withdraw");
 
-        IERC20(farmTokenAddress).transfer(msg.sender, amount);
+        IERC20(wantTokenAddress).transfer(msg.sender, amount);
 
         _burn(msg.sender, amount);
     }
 
     function farm() public {
-        uint256 wantAmt = IERC20(farmTokenAddress).balanceOf(address(this));
-        IERC20(farmTokenAddress).safeIncreaseAllowance(farmContractAddress, wantAmt);
+        uint256 wantAmt = IERC20(wantTokenAddress).balanceOf(address(this));
+        IERC20(wantTokenAddress).safeIncreaseAllowance(farmContractAddress, wantAmt);
 
         IPancakeswapFarm(farmContractAddress).deposit(farmPid, wantAmt);
     }
@@ -105,14 +113,60 @@ contract FarmBasic is ERC20, Ownable {
 
         IERC20(earnedAddress).approve(uniRouterAddress, 0);
         IERC20(earnedAddress).safeIncreaseAllowance(uniRouterAddress, earnedAmt);
+
+        if (earnedAddress != token0Address) {
+            // Swap half earned to token0
+            swap(
+                uniRouterAddress,
+                earnedAmt.div(2),
+                slippageFactor,
+                earnedToToken0Path,
+                address(this),
+                block.timestamp.add(600)
+            );
+        }
+
+        if (earnedAddress != token1Address) {
+            // Swap half earned to token1
+            swap(
+                uniRouterAddress,
+                earnedAmt.div(2),
+                slippageFactor,
+                earnedToToken1Path,
+                address(this),
+                block.timestamp.add(600)
+            );
+        }
+
+        // Get want tokens, ie. add liquidity
+        uint256 token0Amt = IERC20(token0Address).balanceOf(address(this));
+        uint256 token1Amt = IERC20(token1Address).balanceOf(address(this));
+        if (token0Amt > 0 && token1Amt > 0) {
+            IERC20(token0Address).safeIncreaseAllowance(
+                uniRouterAddress,
+                token0Amt
+            );
+            IERC20(token1Address).safeIncreaseAllowance(
+                uniRouterAddress,
+                token1Amt
+            );
+            IPancakeRouter02(uniRouterAddress).addLiquidity(
+                token0Address,
+                token1Address,
+                token0Amt,
+                token1Amt,
+                0,
+                0,
+                address(this),
+                block.timestamp.add(600)
+            );
+        }
+
+        farm();
     }
 
     function unfarm(uint256 wantAmt) public {
         IPancakeswapFarm(farmContractAddress).withdraw(farmPid, wantAmt);
-    }
-
-    function redeemRewards() public onlyActive {
-
     }
 
     function activate(bool value) public onlyOwner {
@@ -123,9 +177,26 @@ contract FarmBasic is ERC20, Ownable {
         return isActive;
     }
 
-    function setUniRouterAddress(address _farmContractAddress) public virtual onlyOwner{
-        farmContractAddress = _farmContractAddress;
-        emit SetFarmContractAddress(_farmContractAddress);
+    function swap(
+        address _farmContractAddress,
+        uint256 _amountIn,
+        uint256 _slippageFactor,
+        address[] memory _path,
+        address _to,
+        uint256 _deadline
+    ) internal virtual {
+        uint256[] memory amounts =
+            IPancakeRouter02(_farmContractAddress).getAmountsOut(_amountIn, _path);
+        uint256 amountOut = amounts[amounts.length.sub(1)];
+
+        IPancakeRouter02(_farmContractAddress)
+            .swapExactTokensForTokensSupportingFeeOnTransferTokens(
+            _amountIn,
+            amountOut.mul(_slippageFactor).div(1000),
+            _path,
+            _to,
+            _deadline
+        );
     }
 
     function setSettings(

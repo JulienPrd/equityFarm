@@ -9,6 +9,6 @@ var prefix = "equity";
 
 module.exports = function(deployer, network, accounts) {
   deployer.deploy(MetaCoin, "MetaCoin", "META").then(function() {
-    return deployer.deploy(FarmBasic, MetaCoin.address, accounts[3], 1, prefix + "MetaCoin", prefix + "META");
+    return deployer.deploy(FarmBasic, accounts[8], accounts[9], accounts[7], MetaCoin.address, accounts[6], 1, prefix + "MetaCoin", prefix + "META");
   });
 };
