@@ -4,14 +4,18 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./libs/IPancakeswapFarm.sol";
 
 contract FarmBasic is ERC20, Ownable {
 
-    IERC20 private farmToken; // can be a single asset or a liquidity such as BUSD-USDT
+    using SafeMath for uint256;
+    using SafeERC20 for IERC20;
 
-    uint256  private _farmPid;
+    address private farmTokenAddress; // can be a single asset or a liquidity such as BUSD-USDT
+
+    uint256  private farmPid;
     bool private isActive;
     address private farmContractAddress;
     address public earnedAddress; // CAKE or whatever
@@ -19,6 +23,10 @@ contract FarmBasic is ERC20, Ownable {
     address public token0Address;
     address public token1Address;
     address public uniRouterAddress; // uniswap, pancakeswap etc
+
+    uint256 public buyBackRate = 0; // 250;
+    uint256 public constant buyBackRateMax = 10000; // 100 = 1%
+    uint256 public constant buyBackRateUL = 800;
 
     uint256 public controllerFee = 0; // 70;
     uint256 public constant controllerFeeMax = 10000; // 100 = 1%
@@ -63,12 +71,11 @@ contract FarmBasic is ERC20, Ownable {
         isActive = false;
         farmPid = _farmPid;
         farmContractAddress = _farmContractAddress;
-        farmToken = ERC20(_farmTokenAddress);
+        farmTokenAddress = _farmTokenAddress;
     }
 
     function depositFarmTokens(uint amount) public onlyActive {
-        bool sent = farmToken.transferFrom(msg.sender, address(this), amount);
-        require(sent, "farmToken deposit failed");
+        IERC20(farmTokenAddress).transferFrom(msg.sender, address(this), amount);
 
         _mint(msg.sender, amount);
     }
@@ -77,15 +84,14 @@ contract FarmBasic is ERC20, Ownable {
         uint256 amount = balanceOf(msg.sender);
         require(amount > 0, "nothing to withdraw");
 
-        bool sent = farmToken.transfer(msg.sender, amount);
-        require(sent, "farmToken withdraw failed");
+        IERC20(farmTokenAddress).transfer(msg.sender, amount);
 
         _burn(msg.sender, amount);
     }
 
     function farm() public {
-        uint256 wantAmt = IERC20(farmToken).balanceOf(address(this));
-        IERC20(farmToken).approve(farmContractAddress, wantAmt);
+        uint256 wantAmt = IERC20(farmTokenAddress).balanceOf(address(this));
+        IERC20(farmTokenAddress).safeIncreaseAllowance(farmContractAddress, wantAmt);
 
         IPancakeswapFarm(farmContractAddress).deposit(farmPid, wantAmt);
     }
@@ -98,7 +104,7 @@ contract FarmBasic is ERC20, Ownable {
         uint256 earnedAmt = IERC20(earnedAddress).balanceOf(address(this));
 
         IERC20(earnedAddress).approve(uniRouterAddress, 0);
-        IERC20(earnedAddress).increaseAllowance(uniRouterAddress, earnedAmt);
+        IERC20(earnedAddress).safeIncreaseAllowance(uniRouterAddress, earnedAmt);
     }
 
     function unfarm(uint256 wantAmt) public {

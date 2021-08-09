@@ -86,9 +86,4 @@ contract('FarmBasic', (accounts) => {
     const endEquityMetaCoinBalance = parseInt(web3.utils.fromWei(String(await farmInstance.balanceOf.call(account)), 'ether'));
     assert.equal(endEquityMetaCoinBalance, 0, "Account should now have 0 equityMetaCoin");
   });
-
-  it('test Farm', async () => {
-    const farmInstance = await FarmBasic.deployed();
-    await farmInstance.farm();
-  });
 });
