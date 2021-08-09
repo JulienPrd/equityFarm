@@ -57,13 +57,14 @@ contract FarmBasic is ERC20, Ownable {
     );
     event SetFarmContractAddress(address _farmContractAddress);
 
-
     modifier onlyActive() {
         assert(isActive == true);
         _;
     }
 
     constructor(
+        address[] _earnedToToken0Path,
+        address[] _earnedToToken1Path,
         address _token0Address,
         address _token1Address,
         address _uniRouterAddress,
@@ -73,6 +74,8 @@ contract FarmBasic is ERC20, Ownable {
         string memory name, 
         string memory symbol
     ) ERC20(name, symbol) Ownable() {
+        earnedToToken0Path = _earnedToToken0Path;
+        earnedToToken1Path = _earnedToToken1Path;
         token0Address = _token0Address;
         token1Address = _token1Address;
         uniRouterAddress = _uniRouterAddress;
@@ -178,7 +181,7 @@ contract FarmBasic is ERC20, Ownable {
     }
 
     function swap(
-        address _farmContractAddress,
+        address _uniRouterAddress,
         uint256 _amountIn,
         uint256 _slippageFactor,
         address[] memory _path,
@@ -186,10 +189,10 @@ contract FarmBasic is ERC20, Ownable {
         uint256 _deadline
     ) internal virtual {
         uint256[] memory amounts =
-            IPancakeRouter02(_farmContractAddress).getAmountsOut(_amountIn, _path);
+            IPancakeRouter02(_uniRouterAddress).getAmountsOut(_amountIn, _path);
         uint256 amountOut = amounts[amounts.length.sub(1)];
 
-        IPancakeRouter02(_farmContractAddress)
+        IPancakeRouter02(_uniRouterAddress)
             .swapExactTokensForTokensSupportingFeeOnTransferTokens(
             _amountIn,
             amountOut.mul(_slippageFactor).div(1000),
