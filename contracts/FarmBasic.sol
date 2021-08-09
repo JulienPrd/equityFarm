@@ -63,17 +63,19 @@ contract FarmBasic is ERC20, Ownable {
     }
 
     constructor(
-        address[] _earnedToToken0Path,
-        address[] _earnedToToken1Path,
+        address[] memory _earnedToToken0Path,
+        address[] memory _earnedToToken1Path,
         address _token0Address,
         address _token1Address,
         address _uniRouterAddress,
         address _wantTokenAddress, 
+        address _earnedAddress,
         address _farmContractAddress, // address of farm, eg, PCS, Thugs etc.
         uint256 _farmPid, // pid of pool in farmContractAddress
         string memory name, 
         string memory symbol
     ) ERC20(name, symbol) Ownable() {
+        earnedAddress = _earnedAddress;
         earnedToToken0Path = _earnedToToken0Path;
         earnedToToken1Path = _earnedToToken1Path;
         token0Address = _token0Address;
