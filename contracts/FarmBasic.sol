@@ -20,6 +20,9 @@ contract FarmBasic is ERC20, Ownable {
     uint256  private farmPid;
     bool private isActive;
     address private farmContractAddress;
+    uint256 private wantLockedTotal = 0;
+    uint256 private sharesTotal = 0;
+
     address public earnedAddress; // CAKE or whatever
 
     address public token0Address;
@@ -90,6 +93,16 @@ contract FarmBasic is ERC20, Ownable {
     function depositFarmTokens(uint amount) public onlyActive {
         IERC20(wantTokenAddress).transferFrom(msg.sender, address(this), amount);
 
+        uint256 sharesAdded = amount;
+        if (wantLockedTotal > 0 && sharesTotal > 0) {
+            sharesAdded = amount
+                .mul(sharesTotal)
+                .mul(entranceFeeFactor)
+                .div(wantLockedTotal)
+                .div(entranceFeeFactorMax);
+        }
+        sharesTotal = sharesTotal.add(sharesAdded);
+
         _mint(msg.sender, amount);
     }
 
@@ -98,6 +111,12 @@ contract FarmBasic is ERC20, Ownable {
         require(amount > 0, "nothing to withdraw");
 
         IERC20(wantTokenAddress).transfer(msg.sender, amount);
+
+        uint256 sharesRemoved = amount.mul(sharesTotal).div(wantLockedTotal);
+        if (sharesRemoved > sharesTotal) {
+            sharesRemoved = sharesTotal;
+        }
+        sharesTotal = sharesTotal.sub(sharesRemoved);
 
         _burn(msg.sender, amount);
     }
