@@ -1,5 +1,6 @@
 const FarmBasic = artifacts.require("FarmBasic");
 const MetaCoin = artifacts.require("MetaCoin");
+const RewardToken = artifacts.require("RewardToken");
 const Web3 = require('web3');
 
 contract('FarmBasic', (accounts) => {
@@ -15,15 +16,29 @@ contract('FarmBasic', (accounts) => {
   });
 
    it('should transfert MetaCoin to AccountTwo', async () => {
+      const inputTokenInstance = await MetaCoin.deployed();
+      const rewardTokenInstance = await RewardToken.deployed();
+
       const accountOne = accounts[0];
       const accountTwo = accounts[1];
+      const account2 = accounts[2];
+      const account3 = accounts[3];
 
       const amount = 10000;
-      const inputTokenInstance = await MetaCoin.deployed();
       await inputTokenInstance.transfer(accountTwo, web3.utils.toWei(String(amount)), { from: accountOne });
 
+      // and 2 and 3 ...
+      await inputTokenInstance.transfer(account2, web3.utils.toWei(String(amount)), { from: accountOne });
+      await inputTokenInstance.transfer(account3, web3.utils.toWei(String(amount)), { from: accountOne });
+
+      // transfer RewardToken to accountTwo
+      await rewardTokenInstance.transfer(accountTwo, web3.utils.toWei(String(amount)), { from: accountOne });
+
       const accountTwoEndingBalance = parseInt(web3.utils.fromWei(String(await inputTokenInstance.balanceOf.call(accountTwo)), 'ether'));
-      assert.equal(accountTwoEndingBalance, amount, "Amount wasn't correctly sent to account 2");
+      assert.equal(accountTwoEndingBalance, amount, "InputToken: Amount wasn't correctly sent to account 2");
+
+       const rewardEndingBalance = parseInt(web3.utils.fromWei(String(await rewardTokenInstance.balanceOf.call(accountTwo)), 'ether'));
+      assert.equal(rewardEndingBalance, amount, "RewardToken: Amount wasn't correctly sent to account 2");
   });
 
   it('should active FarmBasic', async () => {
@@ -86,4 +101,40 @@ contract('FarmBasic', (accounts) => {
     const endEquityMetaCoinBalance = parseInt(web3.utils.fromWei(String(await farmInstance.balanceOf.call(account)), 'ether'));
     assert.equal(endEquityMetaCoinBalance, 0, "Account should now have 0 equityMetaCoin");
   });
+
+  it('should put many MetaCoin from 3 accounts in the FarmBasic', async () => {
+    const farmInstance = await FarmBasic.deployed();
+    const inputTokenInstance = await MetaCoin.deployed();
+
+    const account1 = accounts[1];
+    const account2 = accounts[2];
+    const account3 = accounts[3];
+    const amountWei1 = web3.utils.toWei(String(depositWithdraw * 1));
+    const amountWei2 = web3.utils.toWei(String(depositWithdraw * 2));
+    const amountWei3 = web3.utils.toWei(String(depositWithdraw * 3));
+
+    await inputTokenInstance.increaseAllowance(FarmBasic.address, amountWei1, { from: account1 });
+    await farmInstance.deposit(amountWei1, { from: account1 });
+
+    await inputTokenInstance.increaseAllowance(FarmBasic.address, amountWei2, { from: account2 });
+    await farmInstance.deposit(amountWei2, { from: account2 });
+
+    await inputTokenInstance.increaseAllowance(FarmBasic.address, amountWei3, { from: account3 });
+    await farmInstance.deposit(amountWei3, { from: account3 });
+
+    const farmBeforeWithdrawBalance = parseInt(web3.utils.fromWei(String(await inputTokenInstance.balanceOf.call(farmInstance.address)), 'ether'));
+    assert.equal(farmBeforeWithdrawBalance, depositWithdraw + depositWithdraw * 2 + depositWithdraw * 3, "FarmBasic should now have 6000 MetaCoin");
+
+    // withdraw account 2
+    const beforeWithdrawBalance = parseInt(web3.utils.fromWei(String(await inputTokenInstance.balanceOf.call(account2)), 'ether'));
+    await farmInstance.withdraw({from: account2});
+    const farmAfterWithdrawBalance = parseInt(web3.utils.fromWei(String(await inputTokenInstance.balanceOf.call(farmInstance.address)), 'ether'));
+    const afterWithdrawBalance = parseInt(web3.utils.fromWei(String(await inputTokenInstance.balanceOf.call(account2)), 'ether'));
+
+    // check MetaCoin balance
+    assert.equal(farmAfterWithdrawBalance, depositWithdraw + depositWithdraw * 3, "FarmBasic should now have less MetaCoin");
+    assert.equal(afterWithdrawBalance - beforeWithdrawBalance, depositWithdraw * 2, "Account 2 should have its MetaCoin back");
+  });
+
+
 });

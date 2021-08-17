@@ -1,5 +1,6 @@
 const MetaCoin = artifacts.require("MetaCoin.sol");
 const FarmBasic = artifacts.require("FarmBasic.sol");
+const RewardToken = artifacts.require("RewardToken.sol");
 
 var prefix = "equity";
 
@@ -14,29 +15,34 @@ var prefix = "equity";
 
 module.exports = function(deployer, network, accounts) {
 
-  deployer.deploy(MetaCoin, "MetaCoin", "META").then(function() {
+  deployer.deploy(RewardToken, "RewardToken", "REWARD").then(function() {
 
-    var earnedAddress = accounts[6];
-    var wantToken = MetaCoin.address;
-    var token0 = accounts[8];
-    var token1 = accounts[9];
-    var router = accounts[7];
-    var farmContract = accounts[5];
-    
-    return deployer.deploy(
-        FarmBasic,
-        [earnedAddress, token0],
-        [earnedAddress, token1],
-        token0, 
-        token1, 
-        router, 
-        wantToken,
-        earnedAddress, 
-        farmContract, 
-        1, 
-        prefix + "MetaCoin", 
-        prefix + "META"
-      );
+    return deployer.deploy(MetaCoin, "MetaCoin", "META").then(function() {
+
+      var earnedAddress = RewardToken.address;
+      var wantToken = MetaCoin.address;
+      var token0 = accounts[8];
+      var token1 = accounts[9];
+      var router = accounts[7];
+      var farmContract = accounts[5];
+      
+      return deployer.deploy(
+          FarmBasic,
+          [earnedAddress, token0],
+          [earnedAddress, token1],
+          token0, 
+          token1, 
+          router, 
+          wantToken,
+          earnedAddress, 
+          farmContract, 
+          1, 
+          prefix + "MetaCoin", 
+          prefix + "META"
+        );
+      
+    });
+
   });
 
 };
