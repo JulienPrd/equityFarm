@@ -53,7 +53,7 @@ contract('FarmBasic', (accounts) => {
     await inputTokenInstance.increaseAllowance(FarmBasic.address, amountWei, { from: account });
 
     // deposit tokens (TODO: not to be mandatory)
-    await farmInstance.depositFarmTokens(amountWei, { from: account });
+    await farmInstance.deposit(amountWei, { from: account });
 
     // check MetaCoin balance
     const balanceEnd = await inputTokenInstance.balanceOf.call(farmInstance.address);
@@ -74,7 +74,7 @@ contract('FarmBasic', (accounts) => {
 
     // withdraw
     const accountOneStartingBalance = parseInt(web3.utils.fromWei(String(await inputTokenInstance.balanceOf.call(account)), 'ether'));
-    await farmInstance.withdrawFarmTokens({from: account});
+    await farmInstance.withdraw({from: account});
 
     // check MetaCoin balance
     const balance = parseInt(web3.utils.fromWei(String(await inputTokenInstance.balanceOf.call(farmInstance.address)), 'ether'));

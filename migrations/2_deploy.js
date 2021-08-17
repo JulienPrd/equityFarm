@@ -13,7 +13,30 @@ var prefix = "equity";
 // balance WEI : 968417212915858001
 
 module.exports = function(deployer, network, accounts) {
+
   deployer.deploy(MetaCoin, "MetaCoin", "META").then(function() {
-    return deployer.deploy(FarmBasic, accounts[8], accounts[9], accounts[7], MetaCoin.address, accounts[6], 1, prefix + "MetaCoin", prefix + "META");
+
+    var earnedAddress = accounts[6];
+    var wantToken = MetaCoin.address;
+    var token0 = accounts[8];
+    var token1 = accounts[9];
+    var router = accounts[7];
+    var farmContract = accounts[5];
+    
+    return deployer.deploy(
+        FarmBasic,
+        [earnedAddress, token0],
+        [earnedAddress, token1],
+        token0, 
+        token1, 
+        router, 
+        wantToken,
+        earnedAddress, 
+        farmContract, 
+        1, 
+        prefix + "MetaCoin", 
+        prefix + "META"
+      );
   });
+
 };

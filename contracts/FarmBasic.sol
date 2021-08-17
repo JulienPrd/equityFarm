@@ -37,7 +37,7 @@ contract FarmBasic is ERC20, Ownable {
     uint256 public constant controllerFeeMax = 10000; // 100 = 1%
     uint256 public constant controllerFeeUL = 300;
 
-    uint256 public entranceFeeFactor = 9990; // < 0.1% entrance fee - goes to pool + prevents front-running
+    uint256 public entranceFeeFactor = 10000; // < 0.1% entrance fee - goes to pool + prevents front-running
     uint256 public constant entranceFeeFactorMax = 10000;
     uint256 public constant entranceFeeFactorLL = 9950; // 0.5% is the max entrance fee settable. LL = lowerlimit
 
@@ -90,41 +90,57 @@ contract FarmBasic is ERC20, Ownable {
         wantTokenAddress = _wantTokenAddress;
     }
 
-    function depositFarmTokens(uint amount) public onlyActive {
-        IERC20(wantTokenAddress).transferFrom(msg.sender, address(this), amount);
+    function deposit(uint wantAmt) public onlyActive {
+        IERC20(wantTokenAddress).transferFrom(msg.sender, address(this), wantAmt);
 
-        uint256 sharesAdded = amount;
+        uint256 sharesAdded = wantAmt;
         if (wantLockedTotal > 0 && sharesTotal > 0) {
-            sharesAdded = amount
+            sharesAdded = wantAmt
                 .mul(sharesTotal)
                 .mul(entranceFeeFactor)
                 .div(wantLockedTotal)
                 .div(entranceFeeFactorMax);
         }
         sharesTotal = sharesTotal.add(sharesAdded);
+        wantLockedTotal = wantLockedTotal.add(wantAmt);
 
-        _mint(msg.sender, amount);
+        _mint(msg.sender, sharesAdded);
     }
 
-    function withdrawFarmTokens() public onlyActive {
-        uint256 amount = balanceOf(msg.sender);
-        require(amount > 0, "nothing to withdraw");
+    function withdraw() public onlyActive {
+        uint256 wantAmt = balanceOf(msg.sender);
+        require(wantAmt > 0, "nothing to withdraw");
 
-        IERC20(wantTokenAddress).transfer(msg.sender, amount);
-
-        uint256 sharesRemoved = amount.mul(sharesTotal).div(wantLockedTotal);
+        uint256 sharesRemoved = wantAmt.mul(sharesTotal).div(wantLockedTotal);
         if (sharesRemoved > sharesTotal) {
             sharesRemoved = sharesTotal;
         }
         sharesTotal = sharesTotal.sub(sharesRemoved);
 
-        _burn(msg.sender, amount);
+        if (withdrawFeeFactor < withdrawFeeFactorMax) {
+            wantAmt = wantAmt.mul(withdrawFeeFactor).div(withdrawFeeFactorMax);
+        }
+
+        uint256 wantTotalAmt = IERC20(wantTokenAddress).balanceOf(address(this));
+        if (wantAmt > wantTotalAmt) {
+            wantAmt = wantTotalAmt;
+        }
+
+        if (wantLockedTotal < wantAmt) {
+            wantAmt = wantLockedTotal;
+        }
+
+        wantLockedTotal = wantLockedTotal.sub(wantAmt);
+
+        IERC20(wantTokenAddress).transfer(msg.sender, wantAmt);
+
+        _burn(msg.sender, wantAmt);
     }
 
     function farm() public {
         uint256 wantAmt = IERC20(wantTokenAddress).balanceOf(address(this));
+        wantLockedTotal = wantLockedTotal.add(wantAmt);
         IERC20(wantTokenAddress).safeIncreaseAllowance(farmContractAddress, wantAmt);
-
         IPancakeswapFarm(farmContractAddress).deposit(farmPid, wantAmt);
     }
 
