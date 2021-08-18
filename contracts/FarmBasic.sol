@@ -20,8 +20,6 @@ contract FarmBasic is ERC20, Ownable {
     uint256  private farmPid;
     bool private isActive;
     address private farmContractAddress;
-    uint256 private wantLockedTotal = 0;
-    uint256 private sharesTotal = 0;
 
     address public earnedAddress; // CAKE or whatever
 
@@ -59,6 +57,8 @@ contract FarmBasic is ERC20, Ownable {
         uint256 _slippageFactor
     );
     event SetFarmContractAddress(address _farmContractAddress);
+    event LiquidityStatus(uint256 totalSupply, uint256 wantTokens);
+    event Test(uint256 value);
 
     modifier onlyActive() {
         assert(isActive == true);
@@ -92,55 +92,27 @@ contract FarmBasic is ERC20, Ownable {
 
     function deposit(uint wantAmt) public onlyActive {
         IERC20(wantTokenAddress).transferFrom(msg.sender, address(this), wantAmt);
-
-        uint256 sharesAdded = wantAmt;
-        if (wantLockedTotal > 0 && sharesTotal > 0) {
-            sharesAdded = wantAmt
-                .mul(sharesTotal)
-                .mul(entranceFeeFactor)
-                .div(wantLockedTotal)
-                .div(entranceFeeFactorMax);
-        }
-        sharesTotal = sharesTotal.add(sharesAdded);
-        wantLockedTotal = wantLockedTotal.add(wantAmt);
-
-        _mint(msg.sender, sharesAdded);
+        _mint(msg.sender, wantAmt);
     }
 
     function withdraw() public onlyActive {
         uint256 wantAmt = balanceOf(msg.sender);
         require(wantAmt > 0, "nothing to withdraw");
 
-        uint256 sharesRemoved = wantAmt.mul(sharesTotal).div(wantLockedTotal);
-        if (sharesRemoved > sharesTotal) {
-            sharesRemoved = sharesTotal;
-        }
-        sharesTotal = sharesTotal.sub(sharesRemoved);
-
-        if (withdrawFeeFactor < withdrawFeeFactorMax) {
-            wantAmt = wantAmt.mul(withdrawFeeFactor).div(withdrawFeeFactorMax);
-        }
-
-        uint256 wantTotalAmt = IERC20(wantTokenAddress).balanceOf(address(this));
-        if (wantAmt > wantTotalAmt) {
-            wantAmt = wantTotalAmt;
-        }
-
-        if (wantLockedTotal < wantAmt) {
-            wantAmt = wantLockedTotal;
-        }
-
-        wantLockedTotal = wantLockedTotal.sub(wantAmt);
-
-        IERC20(wantTokenAddress).transfer(msg.sender, wantAmt);
-
+        uint256 wantAmtValue = wantAmt.mul(wantAddressBalance()).div(totalSupply());
+        ERC20(wantTokenAddress).approve(msg.sender, wantAmtValue);
+        IERC20(wantTokenAddress).transfer(msg.sender, wantAmtValue);
         _burn(msg.sender, wantAmt);
     }
 
+    function wantAddressBalance() public view returns(uint256) {
+        return IERC20(wantTokenAddress).balanceOf(address(this));
+    }
+
+    /// deposit available wantToken in this contract to the Farm
     function depositFarm() public {
         uint256 wantAmt = IERC20(wantTokenAddress).balanceOf(address(this));
         if (wantAmt > 0) {
-            wantLockedTotal = wantLockedTotal.add(wantAmt);
             IERC20(wantTokenAddress).safeIncreaseAllowance(farmContractAddress, wantAmt);
             IPancakeswapFarm(farmContractAddress).deposit(farmPid, wantAmt);
         }
