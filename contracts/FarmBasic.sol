@@ -137,16 +137,22 @@ contract FarmBasic is ERC20, Ownable {
         _burn(msg.sender, wantAmt);
     }
 
-    function farm() public {
+    function depositFarm() public {
         uint256 wantAmt = IERC20(wantTokenAddress).balanceOf(address(this));
-        wantLockedTotal = wantLockedTotal.add(wantAmt);
-        IERC20(wantTokenAddress).safeIncreaseAllowance(farmContractAddress, wantAmt);
-        IPancakeswapFarm(farmContractAddress).deposit(farmPid, wantAmt);
+        if (wantAmt > 0) {
+            wantLockedTotal = wantLockedTotal.add(wantAmt);
+            IERC20(wantTokenAddress).safeIncreaseAllowance(farmContractAddress, wantAmt);
+            IPancakeswapFarm(farmContractAddress).deposit(farmPid, wantAmt);
+        }
+    }
+
+    function withdrawFarm(uint256 wantAmt) public {
+        IPancakeswapFarm(farmContractAddress).withdraw(farmPid, wantAmt);
     }
 
     function earn() public onlyActive {
         // Harvest farm tokens
-        farm();
+        withdrawFarm(0);
 
         // Converts farm tokens into want tokens
         uint256 earnedAmt = IERC20(earnedAddress).balanceOf(address(this));
@@ -202,11 +208,7 @@ contract FarmBasic is ERC20, Ownable {
             );
         }
 
-        farm();
-    }
-
-    function unfarm(uint256 wantAmt) public {
-        IPancakeswapFarm(farmContractAddress).withdraw(farmPid, wantAmt);
+        depositFarm();
     }
 
     function activate(bool value) public onlyOwner {

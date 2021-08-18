@@ -133,8 +133,15 @@ contract('FarmBasic', (accounts) => {
 
     // check MetaCoin balance
     assert.equal(farmAfterWithdrawBalance, depositWithdraw + depositWithdraw * 3, "FarmBasic should now have less MetaCoin");
-    assert.equal(afterWithdrawBalance - beforeWithdrawBalance, depositWithdraw * 2, "Account 2 should have its MetaCoin back");
+    assert.equal(afterWithdrawBalance - beforeWithdrawBalance, depositWithdraw * 2, "Account2 should have its MetaCoin back");
   });
 
+  it('depositFarm from FarmBasic', async () => {
+    const farmInstance = await FarmBasic.deployed();
+    const inputTokenInstance = await MetaCoin.deployed();
+
+    const account1 = accounts[1];
+    await farmInstance.depositFarm({from: account1});
+  });
 
 });
