@@ -57,8 +57,7 @@ contract FarmBasic is ERC20, Ownable {
         uint256 _slippageFactor
     );
     event SetFarmContractAddress(address _farmContractAddress);
-    event LiquidityStatus(uint256 totalSupply, uint256 wantTokens);
-    event Test(uint256 value);
+    event LiquidityStatus(uint256 totalSupply, uint256 wantTokens, uint256 wantAmtValue);
 
     modifier onlyActive() {
         assert(isActive == true);
@@ -96,16 +95,19 @@ contract FarmBasic is ERC20, Ownable {
     }
 
     function withdraw() public onlyActive {
-        uint256 wantAmt = balanceOf(msg.sender);
-        require(wantAmt > 0, "nothing to withdraw");
+        uint256 wantDepositAmt = balanceOf(msg.sender);
+        require(wantDepositAmt > 0, "nothing to withdraw");
 
-        uint256 wantAmtValue = wantAmt.mul(wantAddressBalance()).div(totalSupply());
+        uint256 wantAmtValue = wantDepositAmt.mul(totalWantBalance()).div(totalSupply());
+        emit LiquidityStatus(totalSupply(), totalWantBalance(), wantAmtValue);
+
         ERC20(wantTokenAddress).approve(msg.sender, wantAmtValue);
         IERC20(wantTokenAddress).transfer(msg.sender, wantAmtValue);
-        _burn(msg.sender, wantAmt);
+
+        _burn(msg.sender, wantDepositAmt);
     }
 
-    function wantAddressBalance() public view returns(uint256) {
+    function totalWantBalance() public view returns(uint256) {
         return IERC20(wantTokenAddress).balanceOf(address(this));
     }
 
