@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.4+commit.c7e474f2"
+		"version": "0.8.7+commit.e28d00a7"
 	},
 	"language": "Solidity",
 	"output": {
@@ -9,23 +9,8 @@
 				"inputs": [
 					{
 						"internalType": "address[]",
-						"name": "_earnedToToken0Path",
+						"name": "_earnedToTokenPath",
 						"type": "address[]"
-					},
-					{
-						"internalType": "address[]",
-						"name": "_earnedToToken1Path",
-						"type": "address[]"
-					},
-					{
-						"internalType": "address",
-						"name": "_token0Address",
-						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "_token1Address",
-						"type": "address"
 					},
 					{
 						"internalType": "address",
@@ -46,11 +31,6 @@
 						"internalType": "address",
 						"name": "_farmContractAddress",
 						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "_farmPid",
-						"type": "uint256"
 					},
 					{
 						"internalType": "string",
@@ -89,6 +69,31 @@
 					}
 				],
 				"name": "Approval",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "totalSupply",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "wantTokens",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "wantAmtValue",
+						"type": "uint256"
+					}
+				],
+				"name": "LiquidityStatus",
 				"type": "event"
 			},
 			{
@@ -384,18 +389,37 @@
 				"inputs": [
 					{
 						"internalType": "uint256",
-						"name": "amount",
+						"name": "wantAmt",
 						"type": "uint256"
 					}
 				],
-				"name": "depositFarmTokens",
+				"name": "deposit",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
-				"inputs": [],
-				"name": "earn",
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "farmPid",
+						"type": "uint256"
+					}
+				],
+				"name": "depositFarm",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "farmPid",
+						"type": "uint256"
+					}
+				],
+				"name": "earnAndSwap",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -421,26 +445,7 @@
 						"type": "uint256"
 					}
 				],
-				"name": "earnedToToken0Path",
-				"outputs": [
-					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"name": "earnedToToken1Path",
+				"name": "earnedToTokenPath",
 				"outputs": [
 					{
 						"internalType": "address",
@@ -488,13 +493,6 @@
 					}
 				],
 				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "farm",
-				"outputs": [],
-				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
@@ -641,33 +639,20 @@
 			},
 			{
 				"inputs": [],
-				"name": "token0Address",
-				"outputs": [
-					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "token1Address",
-				"outputs": [
-					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
 				"name": "totalSupply",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "totalWantBalance",
 				"outputs": [
 					{
 						"internalType": "uint256",
@@ -745,19 +730,6 @@
 				"type": "function"
 			},
 			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "wantAmt",
-						"type": "uint256"
-					}
-				],
-				"name": "unfarm",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
 				"inputs": [],
 				"name": "uniRouterAddress",
 				"outputs": [
@@ -772,7 +744,25 @@
 			},
 			{
 				"inputs": [],
-				"name": "withdrawFarmTokens",
+				"name": "withdraw",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "farmPid",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "wantAmt",
+						"type": "uint256"
+					}
+				],
+				"name": "withdrawFarm",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -867,7 +857,11 @@
 		},
 		"userdoc": {
 			"kind": "user",
-			"methods": {},
+			"methods": {
+				"depositFarm(uint256)": {
+					"notice": "deposit available wantToken in this contract to the Farm"
+				}
+			},
 			"version": 1
 		}
 	},
@@ -875,7 +869,7 @@
 		"compilationTarget": {
 			"contracts/FarmBasic.sol": "FarmBasic"
 		},
-		"evmVersion": "istanbul",
+		"evmVersion": "london",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
@@ -952,32 +946,35 @@
 			]
 		},
 		"contracts/FarmBasic.sol": {
-			"keccak256": "0xab1d5bbc7f6aa924f49848dbe99bbf2d77b6c8f29edbc5207052ce5672d56c31",
+			"keccak256": "0xbdf22c0f7a47ff2065373c51f03dd152877df2a6e2dc22fa1dc75b2277581d35",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://3ca944c92c9efb0087d9fc83f98b7d09f254b06a2429699ebf45836307dca194",
-				"dweb:/ipfs/QmXEwGRSP8tLKWQWY5wJ2TaMrL98GYq8WYq1rSAv4JkerG"
+				"bzz-raw://15c1e33a108bc6eb07e72546afe7929075e323925232cac3915e205f6dae2521",
+				"dweb:/ipfs/QmbETwGEjW4MS8Qcq6aHyjYW31vGqZAHwWHFsNjKZnUJgW"
 			]
 		},
 		"contracts/libs/IPancakeRouter01.sol": {
-			"keccak256": "0x6c958d15da70bdb0c47d12855a83b40c39c08c904eb3fbaa6ec8e3b09d976b5b",
+			"keccak256": "0x15d73478259137be24d58bd775af0a3d3133cc5e309a07f3ac423898b48b2b00",
+			"license": "UNLICENSED",
 			"urls": [
-				"bzz-raw://a6fea7bb53dc451a00226e2aba5ad30fa70f54d942035b8b117291b4a32c6e3d",
-				"dweb:/ipfs/QmPtm1YESScTqvVPDtR5MkHAoyihPEZ8u582WxRRNcftYY"
+				"bzz-raw://fd1bbfedb04d5f627879ae44a32b5a84a1373bf2b9271f46ea838da5e6385d47",
+				"dweb:/ipfs/QmdC1RGyFc7J2WQuhTeg9fcaV5KCNvrf7hYmqBbmdkhxT5"
 			]
 		},
 		"contracts/libs/IPancakeRouter02.sol": {
-			"keccak256": "0xdb95d05027824aa34016aa0b88ce244e13455a42100e07881d41f82e94fdd2b2",
+			"keccak256": "0x9473b93b38ad8f28d88309d3e341e060909d96f006dd2a42d79c0e00fb8acbc7",
+			"license": "UNLICENSED",
 			"urls": [
-				"bzz-raw://13296a97bd4af84e0808aac62658177169086b784e5ffd4e6849dc746d563b6b",
-				"dweb:/ipfs/QmQimfSfaSkEuim1jM4UiPWLQPm2J9tePTqTbdrkQqUGMo"
+				"bzz-raw://72332c46c0410b162fb1759e8f74098c69b357991fda725acea700bc336ceaf5",
+				"dweb:/ipfs/QmQkEhT5RTdgMbPNsjXH971AxVFcvru7HUeofXHHyLDP3E"
 			]
 		},
 		"contracts/libs/IPancakeswapFarm.sol": {
-			"keccak256": "0xe9304a2c4b9a5423c536c06dcf77690feaa44d52639867cf11c77dda439fa622",
+			"keccak256": "0x4ae97c47fabdcb9183f118e437885e9aa272d2687a46644927f5e0e7a4a742cc",
+			"license": "UNLICENSED",
 			"urls": [
-				"bzz-raw://f347393d438f5e293b871098d80d551f45a591fdbac62c0407e8210a768d463c",
-				"dweb:/ipfs/QmRmtqBr9AM3wbkNyHVqjAZ48DdLrWwKCtNM4ZxxWo7ote"
+				"bzz-raw://ec2fc3b74b3e08def5bcc3e08c852e3f7f71201102925f220b3bbe3d80053dae",
+				"dweb:/ipfs/QmdsrFrzdmuenhZcbFg7CNwVeFAnE1SjWKZpa86aUo2QWs"
 			]
 		}
 	},

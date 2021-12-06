@@ -4,6 +4,13 @@ const RewardToken = artifacts.require("RewardToken.sol");
 
 var prefix = "equity";
 
+// Cronos :
+// earned address = 0xadbd1231fb360047525BEdF962581F3eee7b49fe (CRONA)
+// path = ["0xadbd1231fb360047525BEdF962581F3eee7b49fe","0xc21223249CA28397B4B6541dfFaEcC539BfF0c59"]
+// router = 0xcd7d16fB918511BF7269eC4f48d61D79Fb26f918
+// wantToken = 0x0625A68D25d304aed698c806267a4e369e8Eb12a (CRO-USDC)
+// farmContract = 0x77ea4a4cF9F77A034E4291E8f457Af7772c2B254
+
 // pid: 423
 // contract: 0x73feaa1ee314f8c655e354234017be2193c9e24e
 // liquidity: 0xec6557348085aa57c72514d67070dc863c0a5a8c
@@ -29,14 +36,10 @@ module.exports = function(deployer, network, accounts) {
       return deployer.deploy(
           FarmBasic,
           [earnedAddress, token0],
-          [earnedAddress, token1],
-          token0, 
-          token1, 
           router, 
           wantToken,
           earnedAddress, 
           farmContract, 
-          1, 
           prefix + "MetaCoin", 
           prefix + "META"
         );
