@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/3.0.0-rc.5/web3.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <title>Web3js Contract Integration</title>
+
+</head>
+<body>
+    <style>
+        .meta-gray {
+            -webkit-filter: grayscale(1);
+        }
+        .meta-normal {
+            -webkit-filter: grayscale(0);
+        }
+    </style>
+    
+    <div class="container">
+        <div style="margin-top: 30px;" class="row text-center">
+            <div class="col-md-12">
+                <h2>Web3js Smart Contract Integration</h2>
+            </div>            
+        </div>
+        <div style="margin-top: 30px;" class="row text-center">
+            <div class="col-md-12">
+                <button id="enableMetamask" class="btn btn-primary">Connect with Metamask</button>
+            </div>
+        </div>
+        <div class="row text-center">
+            <div class="col-md-12">
+                <span id="status"></span>
+            </div>
+        </div>
+        <section class="contract-section hidden">
+            <div style="margin-top: 30px;" class="row text-center">
+                <div class="col-md-12">
+                    <h3>Contract Info</h3>
+                </div>
+            </div>
+            <div class="row text-center">
+                <div class="col-md-12">
+                    <span>LP in contract: <i id="lpContract"></i></span>
+                </div>
+            </div>
+            <div class="row text-center">
+                <div class="col-md-12">
+                    <span>LP in wallet: <i id="lpLocal"></i></span>
+                </div>
+            </div>
+        </section>
+    </div>  
+    <script>
+        let currentAccount = null;
+        let web3;
+        let abi;
+        let ERC20abi;
+        let contactAddress = '0x318C94583359ca636ddD9896CDa491d58EFC999c'
+        let wantTokenAddress = '0x0625A68D25d304aed698c806267a4e369e8Eb12a'
+        let toTokenAddress = '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59'
+
+        const minABI = [
+  // balanceOf
+  {
+    constant: true,
+    inputs: [{ name: "_owner", type: "address" }],
+    name: "balanceOf",
+    outputs: [{ name: "balance", type: "uint256" }],
+    type: "function",
+  },
+];
+
+        function handleAccountsChanged(accounts) {
+            console.log('Calling HandleChanged')
+            
+            if (accounts.length === 0) {
+                console.log('Please connect to MetaMask.');
+                $('#enableMetamask').html('Connect with Metamask')
+            } else if (accounts[0] !== currentAccount) {
+                currentAccount = accounts[0];
+                $('#enableMetamask').html(currentAccount)
+                $('#status').html('')
+                
+                if(currentAccount != null) {
+                    // Set the button label
+                    $('#enableMetamask').html(currentAccount)
+
+                    $.getJSON("./contracts/artifacts/FarmBasic.json", function(result) {            
+                        abi = result.abi;
+                        getValueLPContract();      
+                    });
+
+                    $.getJSON("./contracts/artifacts/ERC20.json", function(result) {            
+                        ERC20abi = result.abi;
+                        getValueLPLocal();
+                    }); 
+                }
+            }
+        }
+
+        function connect() {
+            console.log('Calling connect()')
+            ethereum
+            .request({ method: 'eth_requestAccounts' })
+            .then(handleAccountsChanged)
+            .catch((err) => {
+            if (err.code === 4001) {
+                // EIP-1193 userRejectedRequest error
+                // If this happens, the user rejected the connection request.
+                console.log('Please connect to MetaMask.');
+                $('#status').html('You refused to connect Metamask')
+            } else {
+                console.error(err);
+            }
+            });
+        }
+
+        function detectMetaMask() {
+            if (typeof window.ethereum !== 'undefined') {                
+                return true
+            } else {                
+                return false
+            }
+        }
+
+        async function getValueLPLocal() {
+            const contract = new web3.eth.Contract(minABI, wantTokenAddress);
+            const result = await contract.methods.balanceOf(currentAccount).call();
+            const format = web3.utils.fromWei(result);
+            $('#lpLocal').html(result);
+        }
+
+        async function getValueLPContract() {
+            const contract = new web3.eth.Contract(abi, contactAddress);
+            const result = await contract.methods.totalWantBalance().call();
+            const format = web3.utils.fromWei(result);
+            $('#lpContract').html(result);
+        }
+    </script>
+
+
+    <script> 
+             
+        $( document ).ready(function() {
+            m = detectMetaMask()
+            if(m) {
+                $('#metaicon').removeClass('meta-gray')
+                $('#metaicon').addClass('meta-normal')
+                $('#enableMetamask').attr('disabled',false)
+                connect() // Make sure the connected wallet is being returned
+            } else {
+                $('#enableMetamask').attr('disabled',true)
+                $('#metaicon').removeClass('meta-normal')
+                $('#metaicon').addClass('meta-gray')
+            }
+
+            $('#enableMetamask').click(function() {
+                connect()
+            });
+
+            try {            
+                web3 = new Web3(new Web3.providers.HttpProvider("https://evm-cronos.crypto.org"));
+            } catch (error) {
+                alert(error)
+            }            
+            
+            
+            
+        })
+    </script>  
+</body>
+</html>
